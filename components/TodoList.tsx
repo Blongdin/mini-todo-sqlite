@@ -48,23 +48,64 @@ export default function TodoList() {
     }
   }
 
+  const remaining = todos.filter((t) => !t.completed).length;
+
   return (
-    <div className="flex w-full max-w-md flex-col gap-4">
-      <TodoForm onAdd={handleAdd} />
-      {loaded && todos.length === 0 ? (
-        <p className="text-zinc-500 dark:text-zinc-400">No to-dos yet.</p>
-      ) : (
-        <ul className="divide-y divide-black/[.08] dark:divide-white/[.145]">
-          {todos.map((todo) => (
-            <TodoItem
-              key={todo.id}
-              todo={todo}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
-          ))}
-        </ul>
-      )}
+    <div className="flex w-full flex-col gap-5">
+      <div className="rounded-3xl bg-surface p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-8px_rgba(15,23,42,0.08)] ring-1 ring-border-subtle sm:p-6">
+        <TodoForm onAdd={handleAdd} />
+      </div>
+
+      <div className="overflow-hidden rounded-3xl bg-surface shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-8px_rgba(15,23,42,0.08)] ring-1 ring-border-subtle">
+        {!loaded ? (
+          <div className="px-6 py-14 text-center text-sm text-muted">
+            Loading…
+          </div>
+        ) : todos.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <>
+            <ul className="divide-y divide-border-subtle">
+              {todos.map((todo) => (
+                <TodoItem
+                  key={todo.id}
+                  todo={todo}
+                  onToggle={handleToggle}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </ul>
+            <div className="border-t border-border-subtle px-5 py-2.5 text-[11px] tracking-wide text-muted/70 sm:px-6">
+              {remaining} left · {todos.length} total
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="h-6 w-6"
+        >
+          <path d="M9 12l2 2 4-4" />
+          <rect x="3" y="4" width="18" height="16" rx="3" />
+        </svg>
+      </div>
+      <div className="flex flex-col gap-1">
+        <p className="text-sm font-medium text-foreground">No to-dos yet</p>
+        <p className="text-sm text-muted">Add your first task to get started.</p>
+      </div>
     </div>
   );
 }
