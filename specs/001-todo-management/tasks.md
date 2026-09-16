@@ -28,7 +28,7 @@ story is independently implementable and testable.
 **Purpose**: One-time project prep. No new npm dependencies are needed — `node:sqlite`
 is built into the installed Node.js 24 runtime (research.md §1).
 
-- [ ] T001 Add `data/*.db` to `.gitignore` in `.gitignore` so the runtime-created SQLite
+- [X] T001 Add `data/*.db` to `.gitignore` in `.gitignore` so the runtime-created SQLite
   file (`data/todos.db`) is never committed
 
 **Checkpoint**: Repo ready for foundational work.
@@ -42,17 +42,17 @@ user story's routes and data-access code depend on.
 
 **⚠️ CRITICAL**: No user story task may start until this phase is complete.
 
-- [ ] T002 [P] Define `Todo`, `ApiSuccess<T>`, `ApiError`, `ApiResponse<T>` in
+- [X] T002 [P] Define `Todo`, `ApiSuccess<T>`, `ApiError`, `ApiResponse<T>` in
   `lib/types.ts` exactly per data-model.md's TypeScript types section: `Todo` has
   `id: number`, `title: string`, `completed: boolean`, `createdAt: string`; no `any`
   anywhere (Constitution III)
-- [ ] T003 [P] Implement JSON envelope helpers in `lib/api-response.ts`: an `ok<T>(data:
+- [X] T003 [P] Implement JSON envelope helpers in `lib/api-response.ts`: an `ok<T>(data:
   T, status = 200)` function returning `NextResponse.json({ data }, { status })` and a
   `fail(message: string, status: number)` function returning
   `NextResponse.json({ error: { message } }, { status })`, matching the two shapes in
   data-model.md so every route handler in `app/api/todos/**` uses these instead of
   building responses ad hoc (Constitution II)
-- [ ] T004 [P] Implement `lib/db.ts`: ensure the `data/` directory exists
+- [X] T004 [P] Implement `lib/db.ts`: ensure the `data/` directory exists
   (`fs.mkdirSync('data', { recursive: true })`), open a module-level
   `node:sqlite` `DatabaseSync` at `data/todos.db`, and run
   `CREATE TABLE IF NOT EXISTS todos (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT (datetime('now')))`
@@ -75,7 +75,7 @@ empty/whitespace title is rejected with a "title is required" message.
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Implement `listTodos(): Todo[]` and `createTodo(title: string): Todo`
+- [X] T005 [US1] Implement `listTodos(): Todo[]` and `createTodo(title: string): Todo`
   in `lib/todos.ts`, built on `lib/db.ts`'s connection: `listTodos` selects all rows
   ordered by `created_at` ascending (oldest first, per spec Assumptions) and maps
   SQLite's `completed` `0`/`1` to a `boolean`; `createTodo` trims `title` and, if the
@@ -83,29 +83,29 @@ empty/whitespace title is rejected with a "title is required" message.
   (FR-002 — reject empty/whitespace-only titles without creating a to-do); on success
   it inserts with `completed = 0` (FR-004) and returns the new row mapped to `Todo`
   (depends on T002, T004)
-- [ ] T006 [US1] Implement `GET` and `POST` handlers in `app/api/todos/route.ts`: `GET`
+- [X] T006 [US1] Implement `GET` and `POST` handlers in `app/api/todos/route.ts`: `GET`
   calls `listTodos()` and responds `ok(todos)`; `POST` reads the body as `unknown`,
   narrows it to check `title` is a string, calls `createTodo(title)`, and responds
   `ok(todo, 201)` on success or `fail("Title is required.", 400)` when the title is
   missing, not a string, or empty/whitespace-only after trimming — matching
   `contracts/todos-api.md`'s `GET`/`POST /api/todos` contract exactly (depends on T003,
   T005)
-- [ ] T007 [P] [US1] Create `TodoForm` in `components/TodoForm.tsx` (`'use client'`): a
+- [X] T007 [P] [US1] Create `TodoForm` in `components/TodoForm.tsx` (`'use client'`): a
   controlled text input and submit button that calls an `onAdd(title: string) =>
   Promise<void>` prop, clears the input after a successful add, and shows an inline
   "Title is required." message (FR-002) without calling `onAdd` when the trimmed input
   is empty
-- [ ] T008 [P] [US1] Create `TodoItem` in `components/TodoItem.tsx` (`'use client'`):
+- [X] T008 [P] [US1] Create `TodoItem` in `components/TodoItem.tsx` (`'use client'`):
   renders one `Todo`'s title and completion status (e.g. strikethrough or a "Done"
   label when `completed`); no toggle/delete controls yet — those are added in
   US2/US3
-- [ ] T009 [US1] Create `TodoList` in `components/TodoList.tsx` (`'use client'`): on
+- [X] T009 [US1] Create `TodoList` in `components/TodoList.tsx` (`'use client'`): on
   mount, `fetch('/api/todos')` and store the returned `Todo[]` in state; render the
   list via `TodoItem`, or an empty-state message (e.g. "No to-dos yet.") when the list
   is empty (FR-008); render `TodoForm` and wire its `onAdd` to `POST /api/todos`,
   appending the returned `Todo` to local state on success without a full refetch
   (depends on T006, T007, T008)
-- [ ] T010 [US1] Replace the default `create-next-app` markup in `app/page.tsx` with
+- [X] T010 [US1] Replace the default `create-next-app` markup in `app/page.tsx` with
   `<TodoList />` (depends on T009)
 
 **Checkpoint**: User Story 1 is fully functional and independently testable — run
@@ -124,19 +124,19 @@ matching the last action.
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Implement `toggleTodo(id: number): Todo | null` in `lib/todos.ts`:
+- [X] T011 [US2] Implement `toggleTodo(id: number): Todo | null` in `lib/todos.ts`:
   flips the stored `completed` value for the row with the given `id` server-side (the
   server, not the client, decides the new value — research.md §4) and returns the
   updated `Todo`, or `null` if no row matches `id` (depends on T005 — same file)
-- [ ] T012 [US2] Implement the `PATCH` handler in
+- [X] T012 [US2] Implement the `PATCH` handler in
   `app/api/todos/[id]/toggle/route.ts`: `await` the route's `ctx.params` (Next.js 16
   async params) to read `id`, respond `fail("Invalid id.", 400)` if it's not a
   positive integer, call `toggleTodo(id)`, respond `fail("Todo not found.", 404)` when
   it returns `null`, else `ok(todo)` — matching `contracts/todos-api.md`'s
   `PATCH /api/todos/:id/toggle` contract exactly (depends on T003, T011)
-- [ ] T013 [P] [US2] Add a toggle control (checkbox or button) to `TodoItem` in
+- [X] T013 [P] [US2] Add a toggle control (checkbox or button) to `TodoItem` in
   `components/TodoItem.tsx` that calls an `onToggle(id: number) => Promise<void>` prop
-- [ ] T014 [US2] Wire toggling in `components/TodoList.tsx`: pass an `onToggle` handler
+- [X] T014 [US2] Wire toggling in `components/TodoList.tsx`: pass an `onToggle` handler
   to each `TodoItem` that calls `PATCH /api/todos/:id/toggle` and replaces that item's
   entry in local state with the response's `Todo` (using the server's returned
   `completed` value, not a locally-flipped guess, so rapid repeated clicks always end
@@ -157,17 +157,17 @@ confirm only it disappears, and confirm deleting it again is a harmless no-op.
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Implement `deleteTodo(id: number): boolean` in `lib/todos.ts`:
+- [X] T015 [US3] Implement `deleteTodo(id: number): boolean` in `lib/todos.ts`:
   deletes the row with the given `id` and returns whether a row was actually deleted
   (depends on T005/T011 — same file)
-- [ ] T016 [US3] Implement the `DELETE` handler in `app/api/todos/[id]/route.ts`:
+- [X] T016 [US3] Implement the `DELETE` handler in `app/api/todos/[id]/route.ts`:
   `await` `ctx.params` to read `id`, respond `fail("Invalid id.", 400)` if it's not a
   positive integer, call `deleteTodo(id)`, respond `fail("Todo not found.", 404)` when
   it returns `false`, else `ok({ id })` — matching `contracts/todos-api.md`'s
   `DELETE /api/todos/:id` contract exactly (depends on T003, T015)
-- [ ] T017 [P] [US3] Add a delete button to `TodoItem` in `components/TodoItem.tsx`
+- [X] T017 [P] [US3] Add a delete button to `TodoItem` in `components/TodoItem.tsx`
   that calls an `onDelete(id: number) => Promise<void>` prop
-- [ ] T018 [US3] Wire deleting in `components/TodoList.tsx`: pass an `onDelete` handler
+- [X] T018 [US3] Wire deleting in `components/TodoList.tsx`: pass an `onDelete` handler
   to each `TodoItem` that calls `DELETE /api/todos/:id` and removes that item from
   local state whether the response is `200` or `404` (a `404` means it's already
   gone, which is the outcome the user wanted anyway — Edge Cases / contracts/todos-api.md)
@@ -183,12 +183,12 @@ quickstart.md Scenario 3.
 **Purpose**: Whole-feature validation against the constitution and the spec's success
 criteria.
 
-- [ ] T019 [P] Run `quickstart.md` Scenarios 1-4 end to end, including the persistence
+- [X] T019 [P] Run `quickstart.md` Scenarios 1-4 end to end, including the persistence
   check (reload the browser, then stop and restart `npm run dev`) to confirm data
   survives both (FR-007, SC-005); fix any discrepancy found
-- [ ] T020 [P] Run `npx tsc --noEmit` and confirm no `any` (explicit or implicit)
+- [X] T020 [P] Run `npx tsc --noEmit` and confirm no `any` (explicit or implicit)
   appears anywhere in `lib/`, `app/api/`, or `components/` (Constitution III)
-- [ ] T021 Spot-check every endpoint's success **and** error responses with the `curl`
+- [X] T021 Spot-check every endpoint's success **and** error responses with the `curl`
   commands in `quickstart.md` and confirm each one is valid JSON matching either
   `{ "data": ... }` or `{ "error": { "message": "..." } }` (Constitution II)
 
