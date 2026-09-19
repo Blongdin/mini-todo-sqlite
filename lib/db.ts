@@ -14,6 +14,21 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     completed INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('high', 'medium', 'low'))
   )
 `);
+
+interface ColumnInfo {
+  name: string;
+}
+
+const columns = db.prepare("PRAGMA table_info(todos)").all() as unknown as ColumnInfo[];
+const hasPriorityColumn = columns.some((column) => column.name === "priority");
+
+if (!hasPriorityColumn) {
+  db.exec(`
+    ALTER TABLE todos
+      ADD COLUMN priority TEXT NOT NULL DEFAULT 'medium' CHECK (priority IN ('high', 'medium', 'low'))
+  `);
+}

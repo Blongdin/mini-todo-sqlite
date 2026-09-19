@@ -1,13 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import type { Priority } from "@/lib/types";
 
 interface TodoFormProps {
-  onAdd: (title: string) => Promise<void>;
+  onAdd: (title: string, priority: Priority) => Promise<void>;
 }
+
+const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
+  { value: "high", label: "High" },
+  { value: "medium", label: "Medium" },
+  { value: "low", label: "Low" },
+];
 
 export default function TodoForm({ onAdd }: TodoFormProps) {
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<Priority>("medium");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,8 +30,9 @@ export default function TodoForm({ onAdd }: TodoFormProps) {
     setError(null);
     setSubmitting(true);
     try {
-      await onAdd(title);
+      await onAdd(title, priority);
       setTitle("");
+      setPriority("medium");
     } finally {
       setSubmitting(false);
     }
@@ -40,6 +49,19 @@ export default function TodoForm({ onAdd }: TodoFormProps) {
           disabled={submitting}
           className="h-12 flex-1 rounded-xl border border-border-subtle bg-background px-4 text-sm leading-none text-foreground placeholder:text-muted transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
         />
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as Priority)}
+          disabled={submitting}
+          aria-label="Priority"
+          className="h-12 shrink-0 rounded-xl border border-border-subtle bg-background px-3 text-sm leading-none text-foreground transition-colors focus:border-primary focus:bg-surface focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
+        >
+          {PRIORITY_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
         <button
           type="submit"
           disabled={submitting}

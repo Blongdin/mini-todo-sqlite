@@ -1,5 +1,12 @@
 import { fail, ok } from "@/lib/api-response";
 import { createTodo, listTodos, EmptyTitleError } from "@/lib/todos";
+import type { Priority } from "@/lib/types";
+
+const VALID_PRIORITIES: readonly Priority[] = ["high", "medium", "low"];
+
+function isPriority(value: unknown): value is Priority {
+  return typeof value === "string" && (VALID_PRIORITIES as readonly string[]).includes(value);
+}
 
 export async function GET() {
   return ok(listTodos());
@@ -17,8 +24,19 @@ export async function POST(request: Request) {
     return fail("Title is required.", 400);
   }
 
+  const rawPriority = (body as { priority?: unknown }).priority;
+
+  let priority: Priority;
+  if (rawPriority === undefined) {
+    priority = "medium";
+  } else if (isPriority(rawPriority)) {
+    priority = rawPriority;
+  } else {
+    return fail("Priority must be one of: high, medium, low.", 400);
+  }
+
   try {
-    const todo = createTodo((body as { title: string }).title);
+    const todo = createTodo((body as { title: string }).title, priority);
     return ok(todo, 201);
   } catch (error) {
     if (error instanceof EmptyTitleError) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ApiResponse, Todo } from "@/lib/types";
+import type { ApiResponse, Priority, Todo } from "@/lib/types";
 import TodoForm from "./TodoForm";
 import TodoItem from "./TodoItem";
 
@@ -20,11 +20,11 @@ export default function TodoList() {
       });
   }, []);
 
-  async function handleAdd(title: string) {
+  async function handleAdd(title: string, priority: Priority) {
     const res = await fetch("/api/todos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title }),
+      body: JSON.stringify({ title, priority }),
     });
     const body = (await res.json()) as ApiResponse<Todo>;
     if ("data" in body) {

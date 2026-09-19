@@ -1,12 +1,24 @@
 "use client";
 
-import type { Todo } from "@/lib/types";
+import type { Priority, Todo } from "@/lib/types";
 
 interface TodoItemProps {
   todo: Todo;
   onToggle: (id: number) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
 }
+
+const PRIORITY_LABEL: Record<Priority, string> = {
+  high: "High",
+  medium: "Medium",
+  low: "Low",
+};
+
+const PRIORITY_CLASSES: Record<Priority, string> = {
+  high: "bg-priority-high-bg text-priority-high",
+  medium: "bg-priority-medium-bg text-priority-medium",
+  low: "bg-priority-low-bg text-priority-low",
+};
 
 export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
   return (
@@ -48,6 +60,12 @@ export default function TodoItem({ todo, onToggle, onDelete }: TodoItemProps) {
         }`}
       >
         {todo.title}
+      </span>
+
+      <span
+        className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium leading-none ${PRIORITY_CLASSES[todo.priority]}`}
+      >
+        {PRIORITY_LABEL[todo.priority]}
       </span>
 
       <button

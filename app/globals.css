@@ -9,6 +9,12 @@
   --primary: #3182f6;
   --primary-hover: #1b64da;
   --danger: #f04452;
+  --priority-high: #b45309;
+  --priority-high-bg: #fef3e2;
+  --priority-medium: #64748b;
+  --priority-medium-bg: #eef1f5;
+  --priority-low: #15803d;
+  --priority-low-bg: #eaf6ee;
 }
 
 @theme inline {
@@ -20,6 +26,12 @@
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
   --color-danger: var(--danger);
+  --color-priority-high: var(--priority-high);
+  --color-priority-high-bg: var(--priority-high-bg);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-medium-bg: var(--priority-medium-bg);
+  --color-priority-low: var(--priority-low);
+  --color-priority-low-bg: var(--priority-low-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
